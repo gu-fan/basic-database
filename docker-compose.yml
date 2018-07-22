@@ -14,13 +14,6 @@ services:
       volumes:
           - postgresql:/var/lib/postgresql:cached
 
-    redis:
-        image: redis:4
-        restart: always
-        ports:
-            - "6379:6379"
-        volumes:
-          - /Users/Shared/docker/redis:/data:cached
     postgre_search:
       image: sameersbn/postgresql:9.6-2
       restart: always
@@ -41,7 +34,7 @@ services:
         ports:
             - "6379:6379"
         volumes:
-          - /Users/Shared/docker/redis:/data:cached
+          - redis:/data:cached
 
     elasticsearch:
         image: elasticsearch-custom:latest
