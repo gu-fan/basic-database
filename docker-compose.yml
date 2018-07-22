@@ -1,0 +1,91 @@
+version: '3'
+services:
+    postgre:
+      image: sameersbn/postgresql:9.6-2
+      restart: always
+      ports:
+        - "5432:5432"
+      environment:
+        - DEBUG=false
+
+        - DB_USER=graphql
+        - DB_PASS=graphql
+        - DB_NAME=staging,production
+      volumes:
+          - postgresql:/var/lib/postgresql:cached
+
+    redis:
+        image: redis:4
+        restart: always
+        ports:
+            - "6379:6379"
+        volumes:
+          - /Users/Shared/docker/redis:/data:cached
+    postgre_search:
+      image: sameersbn/postgresql:9.6-2
+      restart: always
+      ports:
+        - "5433:5432"
+      environment:
+        - DEBUG=false
+
+        - DB_USER=graphql
+        - DB_PASS=graphql
+        - DB_NAME=search_dev,search_pro
+      volumes:
+          - postgresql_search:/var/lib/postgresql:cached
+
+    redis:
+        image: redis:4
+        restart: always
+        ports:
+            - "6379:6379"
+        volumes:
+          - /Users/Shared/docker/redis:/data:cached
+
+    elasticsearch:
+        image: elasticsearch-custom:latest
+        container_name: elasticsearch
+        environment:
+          - cluster.name=docker-cluster
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+        volumes:
+          - esdata1:/usr/share/elasticsearch/data
+        ports:
+          - 9200:9200
+        networks:
+          - esnet
+    elasticsearch2:
+        # image: docker.elastic.co/elasticsearch/elasticsearch:6.3.1
+        image: elasticsearch-custom:latest
+        container_name: elasticsearch2
+        environment:
+          - cluster.name=docker-cluster
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - "discovery.zen.ping.unicast.hosts=elasticsearch"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+        volumes:
+          - esdata2:/usr/share/elasticsearch/data
+        networks:
+          - esnet
+
+networks:
+  esnet:
+
+volumes:
+    postgresql:
+    postgresql_search:
+    redis:
+    esdata1:
+    esdata2:
+
+
